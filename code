@@ -1,0 +1,206 @@
+#Populist Representation
+#Version Oktober 2017 
+
+setwd("...")
+
+library(R2jags)
+library(foreign)
+library(ggplot2)
+
+load("poprep.Rdata")
+attach(poprep)
+
+###NEW October 2017
+#-Measurement model for substantive representation as well 
+#-Interaction between symbolic and substantive representation 
+
+###Modelling the populist vote 
+NC <- max(idc)
+N <- length(idc)
+pop.data <- list(N=N, NC=NC, idc=idc, alts=alts, medi=medi,puni=puni, expl=expl, popvote=popvote, cong_immi=cong_immi,cong_euint=cong_euint, cong_socli=cong_socli, cong_redi=cong_redi, age=age, age2=age2, fem=fem, polint=polint,sec=sec)
+
+model <- "model{
+
+for(i in 1:N){
+
+medi[i] ~ dnorm(mu.medi[i],tau.medi)
+mu.medi[i] <- alpha.medi[idc[i]] 
++ gamma.medi*x1[i] 
+
+alts[i] ~ dnorm(mu.alts[i],tau.alts)
+mu.alts[i] <- alpha.alts[idc[i]] 
++ gamma.alts*x1[i] 
+
+puni[i] ~ dnorm(mu.puni[i],tau.puni)
+mu.puni[i] <- alpha.puni[idc[i]] 
++ gamma.puni*x1[i] 
+
+expl[i] ~ dnorm(mu.expl[i],tau.expl)
+mu.expl[i] <- alpha.expl[idc[i]] 
++ gamma.expl*x1[i] 
+
+#second latent dimension (substantive representation)
+cong_immi[i] ~ dnorm(mu.immi[i],tau.immi)
+mu.immi[i] <- alpha.immi[idc[i]] 
++ gamma.immi*x2[i] 
+
+cong_euint[i] ~ dnorm(mu.euint[i],tau.euint)
+mu.euint[i] <- alpha.euint[idc[i]] 
++ gamma.euint*x2[i] 
+
+cong_socli[i] ~ dnorm(mu.socli[i],tau.socli)
+mu.socli[i] <- alpha.socli[idc[i]] 
++ gamma.socli*x2[i] 
+
+cong_redi[i] ~ dnorm(mu.redi[i],tau.redi)
+mu.redi[i] <- alpha.redi[idc[i]] 
++ gamma.redi*x2[i] 
+
+}
+
+for(j in 1:NC){
+alpha.medi[j] ~ dnorm(mu.medic[j],tau.medic)
+mu.medic[j] <- amedi
+
+alpha.alts[j] ~ dnorm(mu.altsc[j],tau.altsc)
+mu.altsc[j] <- aalts
+
+alpha.puni[j] ~ dnorm(mu.punic[j],tau.punic)
+mu.punic[j] <- apuni
+
+alpha.expl[j] ~ dnorm(mu.explc[j],tau.explc)
+mu.explc[j] <- aexpl
+
+alpha.immi[j] ~ dnorm(mu.immic[j],tau.immic)
+mu.immic[j] <- aimmi
+
+alpha.euint[j] ~ dnorm(mu.euintc[j],tau.euintc)
+mu.euintc[j] <- aeuint
+
+alpha.socli[j] ~ dnorm(mu.soclic[j],tau.soclic)
+mu.soclic[j] <- asocli
+
+alpha.redi[j] ~ dnorm(mu.redic[j],tau.redic)
+mu.redic[j] <- aredi
+
+}
+
+
+gamma.medi ~ dnorm(0,.0001) I(0,)
+tau.medi <- pow(sigma.medi, -2)
+sigma.medi ~ dunif(0, 100)
+amedi ~ dnorm(0,.0001)
+tau.medic <- pow(sigma.medic, -2)
+sigma.medic ~ dunif(0, 100)
+
+gamma.alts ~ dnorm(0,.0001) I(0,)
+tau.alts <- pow(sigma.alts, -2)
+sigma.alts ~ dunif(0, 100)
+aalts ~ dnorm(0,.0001)
+tau.altsc <- pow(sigma.altsc, -2)
+sigma.altsc ~ dunif(0, 100)
+
+gamma.puni ~ dnorm(0,.0001) I(0,)
+tau.puni <- pow(sigma.puni, -2)
+sigma.puni ~ dunif(0, 100)
+apuni ~ dnorm(0,.0001)
+tau.punic <- pow(sigma.punic, -2)
+sigma.punic ~ dunif(0, 100)
+
+gamma.expl ~ dnorm(0,.0001) I(0,)
+tau.expl <- pow(sigma.expl, -2)
+sigma.expl ~ dunif(0, 100)
+aexpl ~ dnorm(0,.0001)
+tau.explc <- pow(sigma.explc, -2)
+sigma.explc ~ dunif(0, 100)
+
+gamma.immi ~ dnorm(0,.0001) I(0,)
+tau.immi <- pow(sigma.immi, -2)
+sigma.immi ~ dunif(0, 100)
+aimmi ~ dnorm(0,.0001)
+tau.immic <- pow(sigma.immic, -2)
+sigma.immic ~ dunif(0, 100)
+
+gamma.euint ~ dnorm(0,.0001) I(0,)
+tau.euint <- pow(sigma.euint, -2)
+sigma.euint ~ dunif(0, 100)
+aeuint ~ dnorm(0,.0001)
+tau.euintc <- pow(sigma.euintc, -2)
+sigma.euintc ~ dunif(0, 100)
+
+gamma.redi ~ dnorm(0,.0001) I(0,)
+tau.redi <- pow(sigma.redi, -2)
+sigma.redi ~ dunif(0, 100)
+aredi ~ dnorm(0,.0001)
+tau.redic <- pow(sigma.redic, -2)
+sigma.redic ~ dunif(0, 100)
+
+gamma.socli ~ dnorm(0,.0001) 
+tau.socli <- pow(sigma.socli, -2)
+sigma.socli ~ dunif(0, 100)
+asocli ~ dnorm(0,.0001)
+tau.soclic <- pow(sigma.soclic, -2)
+sigma.soclic ~ dunif(0, 100)
+
+
+for(i in 1:N){
+x1[i] ~ dnorm(cx1[idc[i]],1) 
+x2[i] ~ dnorm(cx2[idc[i]],1) 
+}
+
+for(j in 1:NC){
+cx1[j] ~ dnorm(0,1) 
+cx2[j] ~ dnorm(0,1) 
+}
+
+
+for(i in 1:N){
+#Outcome
+popvote[i] ~ dbern(p.popvote[i])
+p.popvote[i] <- 1/(1+exp(-z[i]))
+z[i] <- alpha.popvote[idc[i]] + gamma.popvote*x1[i] + gamma.cong*x2[2] + gamma.popcong*x1[i]*x2[i] + 
+gamma.age*age[i] + gamma.age2*age2[i] + gamma.fem*fem[i] + gamma.polint*polint[i] + gamma.sec*sec[i] 
+}
+
+for(j in 1:NC){
+alpha.popvote[j] ~ dnorm(mu.popvotec[j],tau.popvotec)
+mu.popvotec[j] <- apopvote
+}
+
+gamma.popvote ~ dnorm(0,.0001) 
+gamma.cong ~ dnorm(0,.0001) 
+gamma.popcong ~ dnorm(0,.0001) 
+gamma.age ~ dnorm(0,.0001) 
+gamma.age2 ~ dnorm(0,.0001) 
+gamma.fem ~ dnorm(0,.0001) 
+gamma.polint ~ dnorm(0,.0001) 
+gamma.sec ~ dnorm(0,.0001) 
+apopvote ~ dnorm(0,.0001)
+tau.popvotec <- pow(sigma.popvotec, -2)
+sigma.popvotec ~ dunif(0, 100)
+
+}"
+  
+write(model, file="popmodel.jags")
+
+
+pop.parameters <- c("gamma.medi","gamma.alts","gamma.puni","gamma.expl","gamma.popvote",
+                    "gamma.immi","gamma.euint","gamma.socli","gamma.redi","gamma.cong","gamma.popcong", 
+                      "gamma.age","gamma.age2","gamma.fem","gamma.polint","gamma.sec",  
+                      "amedi","aalts","apuni","aexpl","aimmi","aeuint","aredi","asocli",  
+                      "apopvote","sigma.medic","sigma.altsc","sigma.punic","sigma.explc", 
+                      "sigma.immic","sigma.redic","sigma.euintc","sigma.soclic", 
+                      "sigma.popvotec","cx1","cx2","alpha.popvote"
+                    )
+
+jags.pop <- jags.model(file="popmodel.jags", data = pop.data, n.chains = 3, n.adapt = 100)
+
+sampleshelp <- coda.samples(jags.pop, pop.parameters, n.iter=100, thin=1)
+
+samplesburn <- coda.samples(jags.pop, pop.parameters, n.iter=800, thin=8)
+samples <- coda.samples(jags.pop, pop.parameters, n.iter=1000, thin=10)
+
+
+plot(sampleshelp, ask=TRUE) 
+plot(samples, ask=TRUE)
+
