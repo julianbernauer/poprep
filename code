@@ -14,10 +14,14 @@ attach(poprep)
 #-Measurement model for substantive representation as well 
 #-Interaction between symbolic and substantive representation 
 
+
 ###Modelling the populist vote 
+
 NC <- max(idc)
 N <- length(idc)
+
 pop.data <- list(N=N, NC=NC, idc=idc, alts=alts, medi=medi,puni=puni, expl=expl, popvote=popvote, cong_immi=cong_immi,cong_euint=cong_euint, cong_socli=cong_socli, cong_redi=cong_redi, age=age, age2=age2, fem=fem, polint=polint,sec=sec)
+
 
 model <- "model{
 
@@ -114,28 +118,28 @@ aexpl ~ dnorm(0,.0001)
 tau.explc <- pow(sigma.explc, -2)
 sigma.explc ~ dunif(0, 100)
 
-gamma.immi ~ dnorm(0,.0001) I(0,)
+gamma.immi ~ dnorm(0,.0001) I(,0)
 tau.immi <- pow(sigma.immi, -2)
 sigma.immi ~ dunif(0, 100)
 aimmi ~ dnorm(0,.0001)
 tau.immic <- pow(sigma.immic, -2)
 sigma.immic ~ dunif(0, 100)
 
-gamma.euint ~ dnorm(0,.0001) I(0,)
+gamma.euint ~ dnorm(0,.0001) I(,0)
 tau.euint <- pow(sigma.euint, -2)
 sigma.euint ~ dunif(0, 100)
 aeuint ~ dnorm(0,.0001)
 tau.euintc <- pow(sigma.euintc, -2)
 sigma.euintc ~ dunif(0, 100)
 
-gamma.redi ~ dnorm(0,.0001) I(0,)
+gamma.redi ~ dnorm(0,.0001) I(,0)
 tau.redi <- pow(sigma.redi, -2)
 sigma.redi ~ dunif(0, 100)
 aredi ~ dnorm(0,.0001)
 tau.redic <- pow(sigma.redic, -2)
 sigma.redic ~ dunif(0, 100)
 
-gamma.socli ~ dnorm(0,.0001) 
+gamma.socli ~ dnorm(0,.0001) I(,0) 
 tau.socli <- pow(sigma.socli, -2)
 sigma.socli ~ dunif(0, 100)
 asocli ~ dnorm(0,.0001)
